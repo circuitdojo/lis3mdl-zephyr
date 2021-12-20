@@ -172,16 +172,6 @@ int lis3mdl_init(const struct device *dev)
 		return -EINVAL;
 	}
 
-	/* Reset device */
-	if (i2c_reg_update_byte(drv_data->i2c, DT_INST_REG_ADDR(0), LIS3MDL_REG_CTRL2,
-				LIS3MDL_SOFT_RST_MASK, LIS3MDL_SOFT_RST_MASK) < 0) {
-		LOG_ERR("Failed to soft reset.");
-		return -EIO;
-	}
-
-	/* Wait for reset */
-	k_sleep(K_MSEC(100));
-
 	/* Configure sensor */
 	chip_cfg[0] = LIS3MDL_REG_CTRL1;
 	chip_cfg[1] = LIS3MDL_TEMP_EN_MASK | lis3mdl_odr_bits[idx];
