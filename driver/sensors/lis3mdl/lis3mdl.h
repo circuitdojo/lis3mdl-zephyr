@@ -31,8 +31,8 @@
 #define LIS3MDL_ST_MASK BIT(0)
 #define LIS3MDL_ST_SHIFT 0
 
-#define LIS3MDL_ODR_BITS(om_bits, do_bits, fast_odr)                                               \
-	(((om_bits) << LIS3MDL_OM_SHIFT) | ((do_bits) << LIS3MDL_DO_SHIFT) |                       \
+#define LIS3MDL_ODR_BITS(om_bits, do_bits, fast_odr)                     \
+	(((om_bits) << LIS3MDL_OM_SHIFT) | ((do_bits) << LIS3MDL_DO_SHIFT) | \
 	 ((fast_odr) << LIS3MDL_FAST_ODR_SHIFT))
 
 #define LIS3MDL_REG_CTRL2 0x21
@@ -94,8 +94,8 @@
 #define LIS3MDL_THS_L 0x32
 #define LIS3MDL_THS_H 0x33
 
-static const char *const lis3mdl_odr_strings[] = { "0.625", "1.25", "2.5", "5",	  "10",	 "20",
-						   "40",    "80",   "155", "300", "560", "1000" };
+static const char *const lis3mdl_odr_strings[] = {"0.625", "1.25", "2.5", "5", "10", "20",
+												  "40", "80", "155", "300", "560", "1000"};
 
 static const uint8_t lis3mdl_odr_bits[] = {
 	LIS3MDL_ODR_BITS(0, 0, 0), /* 0.625 Hz */
@@ -109,12 +109,13 @@ static const uint8_t lis3mdl_odr_bits[] = {
 	LIS3MDL_ODR_BITS(3, 0, 1), /* 155 Hz */
 	LIS3MDL_ODR_BITS(2, 0, 1), /* 300 Hz */
 	LIS3MDL_ODR_BITS(1, 0, 1), /* 560 Hz */
-	LIS3MDL_ODR_BITS(0, 0, 1) /* 1000 Hz */
+	LIS3MDL_ODR_BITS(0, 0, 1)  /* 1000 Hz */
 };
 
-static const uint16_t lis3mdl_magn_gain[] = { 6842, 3421, 2281, 1711 };
+static const uint16_t lis3mdl_magn_gain[] = {6842, 3421, 2281, 1711};
 
-struct lis3mdl_data {
+struct lis3mdl_data
+{
 	const struct device *i2c;
 	int16_t x_sample;
 	int16_t y_sample;
@@ -145,7 +146,7 @@ struct lis3mdl_data {
 
 #ifdef CONFIG_LIS3MDL_TRIGGER
 int lis3mdl_trigger_set(const struct device *dev, const struct sensor_trigger *trig,
-			sensor_trigger_handler_t handler);
+						sensor_trigger_handler_t handler);
 
 int lis3mdl_sample_fetch(const struct device *dev, enum sensor_channel chan);
 
