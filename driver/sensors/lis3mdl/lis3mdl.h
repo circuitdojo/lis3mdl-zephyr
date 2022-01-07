@@ -128,10 +128,9 @@ struct lis3mdl_data
 	struct gpio_callback gpio_cb;
 
 	struct sensor_trigger data_ready_trigger;
-	sensor_trigger_handler_t data_ready_handler;
-
 	struct sensor_trigger threshold_trigger;
-	sensor_trigger_handler_t threshold_handler;
+
+	sensor_trigger_handler_t trigger_handler;
 
 #if defined(CONFIG_LIS3MDL_TRIGGER_OWN_THREAD)
 	K_KERNEL_STACK_MEMBER(thread_stack, CONFIG_LIS3MDL_THREAD_STACK_SIZE);

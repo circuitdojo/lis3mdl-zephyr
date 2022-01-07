@@ -5,7 +5,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-#define DT_DRV_COMPAT st_lis3mdl_magn
+#define DT_DRV_COMPAT st_lis3mdl
 
 #include <drivers/i2c.h>
 #include <init.h>
