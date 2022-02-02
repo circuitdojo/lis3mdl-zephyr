@@ -73,7 +73,7 @@ int lis3mdl_trigger_set(const struct device *dev, const struct sensor_trigger *t
 									 GPIO_INT_EDGE_TO_ACTIVE);
 
 		/* Int register */
-		uint8_t reg_int_cfg = LIS3MDL_INT_BIT3 | LIS3MDL_INT_IEN | LIS3MDL_INT_IEA;
+		uint8_t reg_int_cfg = LIS3MDL_INT_BIT3 | LIS3MDL_INT_IEN;
 
 		switch (trig->chan)
 		{
@@ -135,6 +135,12 @@ static void lis3mdl_gpio_callback(const struct device *dev, struct gpio_callback
 static void lis3mdl_thread_cb(const struct device *dev, uint32_t pins)
 {
 	struct lis3mdl_data *drv_data = dev->data;
+	uint8_t data;
+
+	if (i2c_reg_read_byte(drv_data->i2c, DT_INST_REG_ADDR(0), LIS3MDL_INT_SRC, &data) < 0)
+	{
+		LOG_ERR("Failed to read INT sorce register.");
+	}
 
 	if (drv_data->trigger_handler != NULL)
 	{
