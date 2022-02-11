@@ -157,7 +157,7 @@ int lis3mdl_init(const struct device *dev)
 {
 	struct lis3mdl_data *drv_data = dev->data;
 	uint8_t chip_cfg[6];
-	uint8_t id, idx;
+	uint8_t id, idx, pidx;
 
 	drv_data->i2c = device_get_binding(DT_INST_BUS_LABEL(0));
 
@@ -177,6 +177,21 @@ int lis3mdl_init(const struct device *dev)
 	if (id != LIS3MDL_CHIP_ID)
 	{
 		LOG_ERR("Invalid chip ID.");
+		return -EINVAL;
+	}
+
+	/* Check performance mode */
+	for (pidx = 0U; pidx < ARRAY_SIZE(lis3mdl_pmode_strings); pidx++)
+	{
+		if (!strcmp(lis3mdl_pmode_strings[pidx], CONFIG_LIS3MDL_PMODE))
+		{
+			break;
+		}
+	}
+
+	if (pidx == ARRAY_SIZE(lis3mdl_pmode_strings))
+	{
+		LOG_ERR("Invalid power mode value.");
 		return -EINVAL;
 	}
 
@@ -200,8 +215,7 @@ int lis3mdl_init(const struct device *dev)
 	chip_cfg[1] = LIS3MDL_TEMP_EN_MASK | lis3mdl_odr_bits[idx];
 	chip_cfg[2] = LIS3MDL_FS_IDX << LIS3MDL_FS_SHIFT;
 	chip_cfg[3] = lis3mdl_odr_bits[idx] & LIS3MDL_FAST_ODR_MASK ? LIS3MDL_MD_SINGLE : LIS3MDL_MD_CONTINUOUS;
-	chip_cfg[4] = ((lis3mdl_odr_bits[idx] & LIS3MDL_OM_MASK) >> LIS3MDL_OM_SHIFT)
-				  << LIS3MDL_OMZ_SHIFT;
+	chip_cfg[4] = lis3mdl_pmode_bits[pidx] << LIS3MDL_OMZ_SHIFT;
 	chip_cfg[5] = LIS3MDL_BDU_EN;
 
 	if (i2c_write(drv_data->i2c, chip_cfg, 6, DT_INST_REG_ADDR(0)) < 0)

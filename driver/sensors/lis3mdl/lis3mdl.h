@@ -94,6 +94,14 @@
 #define LIS3MDL_THS_L 0x32
 #define LIS3MDL_THS_H 0x33
 
+static const char* const lis3mdl_pmode_strings[] = {
+	"low","medium","high","ultra"
+};
+
+static const uint8_t lis3mdl_pmode_bits[] = {
+	0, 1, 2, 3
+};
+
 static const char *const lis3mdl_odr_strings[] = {"0.625", "1.25", "2.5", "5", "10", "20",
 												  "40", "80", "155", "300", "560", "1000"};
 

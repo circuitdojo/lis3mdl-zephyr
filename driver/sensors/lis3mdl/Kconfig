@@ -48,6 +48,12 @@ config LIS3MDL_THREAD_STACK_SIZE
 	help
 	  Stack size of thread used by the driver to handle interrupts.
 
+config LIS3MDL_PMODE
+	string "Performance mode of device"
+	default "medium"
+	help
+	  Selects performance mode for the device.
+
 config LIS3MDL_ODR
 	string "Output data rate"
 	default "0.625"
