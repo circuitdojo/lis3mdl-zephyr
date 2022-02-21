@@ -59,10 +59,6 @@ int lis3mdl_trigger_set(const struct device *dev, const struct sensor_trigger *t
 	case SENSOR_TRIG_THRESHOLD:
 	{
 
-		/* Then configure interrupt */
-		gpio_pin_interrupt_configure(drv_data->gpio, DT_INST_GPIO_PIN(0, irq_gpios),
-									 GPIO_INT_DISABLE);
-
 		if (handler == NULL)
 		{
 			return -EINVAL;
@@ -75,7 +71,7 @@ int lis3mdl_trigger_set(const struct device *dev, const struct sensor_trigger *t
 									 GPIO_INT_EDGE_TO_ACTIVE);
 
 		/* Int register */
-		uint8_t reg_int_cfg = LIS3MDL_INT_BIT3 | LIS3MDL_INT_IEN;
+		uint8_t reg_int_cfg = LIS3MDL_INT_BIT3 | LIS3MDL_INT_IEN | LIS3MDL_INT_IEA;
 
 		switch (trig->chan)
 		{
@@ -116,16 +112,6 @@ int lis3mdl_trigger_set(const struct device *dev, const struct sensor_trigger *t
 
 static void lis3mdl_gpio_callback(const struct device *dev, struct gpio_callback *cb, uint32_t pins)
 {
-
-	// if ((pins & BIT(DT_INST_GPIO_PIN(0, drdy_gpios))) != 0)
-	// {
-	// 	gpio_pin_interrupt_configure(dev, DT_INST_GPIO_PIN(0, drdy_gpios), GPIO_INT_DISABLE);
-	// }
-
-	if ((pins & BIT(DT_INST_GPIO_PIN(0, irq_gpios))) != 0)
-	{
-		gpio_pin_interrupt_configure(dev, DT_INST_GPIO_PIN(0, irq_gpios), GPIO_INT_DISABLE);
-	}
 
 #if defined(CONFIG_LIS3MDL_TRIGGER_OWN_THREAD)
 	k_msgq_put(&int_events, &pins, K_NO_WAIT);
