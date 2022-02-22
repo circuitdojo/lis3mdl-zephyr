@@ -115,7 +115,7 @@ int lis3mdl_attr_set(const struct device *dev, enum sensor_channel chan, enum se
 
 		/* Writing ODR */
 		if (i2c_reg_write_byte(drv_data->i2c, DT_INST_REG_ADDR(0), LIS3MDL_REG_CTRL1,
-							   LIS3MDL_TEMP_EN_MASK | lis3mdl_odr_bits[val->val1]) < 0)
+							   lis3mdl_odr_bits[val->val1]) < 0)
 		{
 			LOG_ERR("Failed to soft reset.");
 			return -EIO;
@@ -212,7 +212,7 @@ int lis3mdl_init(const struct device *dev)
 
 	/* Configure sensor */
 	chip_cfg[0] = LIS3MDL_REG_CTRL1;
-	chip_cfg[1] = LIS3MDL_TEMP_EN_MASK | lis3mdl_odr_bits[idx];
+	chip_cfg[1] = lis3mdl_odr_bits[idx];
 	chip_cfg[2] = LIS3MDL_FS_IDX << LIS3MDL_FS_SHIFT;
 	chip_cfg[3] = lis3mdl_odr_bits[idx] & LIS3MDL_FAST_ODR_MASK ? LIS3MDL_MD_SINGLE : LIS3MDL_MD_CONTINUOUS;
 	chip_cfg[4] = lis3mdl_pmode_bits[pidx] << LIS3MDL_OMZ_SHIFT;
