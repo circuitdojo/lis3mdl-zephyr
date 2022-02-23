@@ -117,7 +117,7 @@ int lis3mdl_attr_set(const struct device *dev, enum sensor_channel chan, enum se
 		if (i2c_reg_write_byte(drv_data->i2c, DT_INST_REG_ADDR(0), LIS3MDL_REG_CTRL1,
 							   lis3mdl_odr_bits[val->val1]) < 0)
 		{
-			LOG_ERR("Failed to soft reset.");
+			LOG_ERR("Failed to set odr");
 			return -EIO;
 		}
 
@@ -208,6 +208,14 @@ int lis3mdl_init(const struct device *dev)
 	{
 		LOG_ERR("Invalid ODR value.");
 		return -EINVAL;
+	}
+
+	/* Reset */
+	if (i2c_reg_write_byte(drv_data->i2c, DT_INST_REG_ADDR(0), LIS3MDL_REG_CTRL2,
+						   LIS3MDL_SOFT_RST_MASK) < 0)
+	{
+		LOG_ERR("Failed to reset");
+		return -EIO;
 	}
 
 	/* Configure sensor */
