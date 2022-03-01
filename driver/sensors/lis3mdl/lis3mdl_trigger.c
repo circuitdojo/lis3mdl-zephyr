@@ -59,9 +59,25 @@ int lis3mdl_trigger_set(const struct device *dev, const struct sensor_trigger *t
 	case SENSOR_TRIG_THRESHOLD:
 	{
 
+		/* Disable trigger if NULL */
 		if (handler == NULL)
 		{
-			return -EINVAL;
+
+			uint8_t reg_int_cfg = LIS3MDL_INT_BIT3;
+
+			gpio_pin_interrupt_configure(drv_data->gpio, DT_INST_GPIO_PIN(0, irq_gpios),
+										 GPIO_INT_DISABLE);
+
+			/* Disable interrupt */
+			ret = i2c_reg_write_byte(drv_data->i2c, DT_INST_REG_ADDR(0), LIS3MDL_REG_INT_CFG,
+									 reg_int_cfg);
+			if (ret != 0)
+			{
+				LOG_ERR("Unable to set interrupt cfg register. Err %i", ret);
+				return ret;
+			}
+
+			return 0;
 		}
 
 		drv_data->trigger_handler = handler;
@@ -98,6 +114,7 @@ int lis3mdl_trigger_set(const struct device *dev, const struct sensor_trigger *t
 								 reg_int_cfg);
 		if (ret != 0)
 		{
+			LOG_ERR("Unable to set interrupt cfg register. Err %i", ret);
 			return ret;
 		}
 
@@ -123,8 +140,6 @@ static void lis3mdl_gpio_callback(const struct device *dev, struct gpio_callback
 static void lis3mdl_thread_cb(const struct device *dev, uint32_t pins)
 {
 	struct lis3mdl_data *drv_data = dev->data;
-	uint8_t data;
-
 
 	if (drv_data->trigger_handler != NULL)
 	{
@@ -137,7 +152,6 @@ static void lis3mdl_thread_cb(const struct device *dev, uint32_t pins)
 		if ((pins & BIT(DT_INST_GPIO_PIN(0, irq_gpios))) > 0)
 		{
 			drv_data->trigger_handler(dev, &drv_data->threshold_trigger);
-			gpio_pin_interrupt_configure(drv_data->gpio, DT_INST_GPIO_PIN(0, irq_gpios), GPIO_INT_EDGE_TO_ACTIVE);
 		}
 	}
 	else
@@ -175,7 +189,7 @@ int lis3mdl_init_interrupt(const struct device *dev)
 	drv_data->gpio = device_get_binding(DT_INST_GPIO_LABEL(0, irq_gpios));
 	if (drv_data->gpio == NULL)
 	{
-		LOG_DBG("Cannot get pointer to %s device.", DT_INST_GPIO_LABEL(0, irq_gpios));
+		LOG_ERR("Cannot get pointer to %s device.", DT_INST_GPIO_LABEL(0, irq_gpios));
 		return -EINVAL;
 	}
 
@@ -190,14 +204,14 @@ int lis3mdl_init_interrupt(const struct device *dev)
 
 	if (gpio_add_callback(drv_data->gpio, &drv_data->gpio_cb) < 0)
 	{
-		LOG_DBG("Could not set gpio callback.");
+		LOG_ERR("Could not set gpio callback.");
 		return -EIO;
 	}
 
 	/* clear data ready interrupt line by reading sample data */
 	if (lis3mdl_sample_fetch(dev, SENSOR_CHAN_ALL) < 0)
 	{
-		LOG_DBG("Could not clear data ready interrupt line.");
+		LOG_ERR("Could not clear data ready interrupt line.");
 		return -EIO;
 	}
 

@@ -71,7 +71,7 @@ int lis3mdl_sample_fetch(const struct device *dev, enum sensor_channel chan)
 	if (i2c_burst_read(drv_data->i2c, DT_INST_REG_ADDR(0), LIS3MDL_REG_SAMPLE_START,
 					   (uint8_t *)buf, 8) < 0)
 	{
-		LOG_DBG("Failed to fetch megnetometer sample.");
+		LOG_ERR("Failed to fetch magnetometer sample.");
 		return -EIO;
 	}
 
@@ -83,7 +83,7 @@ int lis3mdl_sample_fetch(const struct device *dev, enum sensor_channel chan)
 	if (i2c_burst_read(drv_data->i2c, DT_INST_REG_ADDR(0), LIS3MDL_REG_SAMPLE_START + 6,
 					   (uint8_t *)(buf + 3), 2) < 0)
 	{
-		LOG_DBG("Failed to fetch temperature sample.");
+		LOG_ERR("Failed to fetch temperature sample.");
 		return -EIO;
 	}
 
@@ -114,10 +114,11 @@ int lis3mdl_attr_set(const struct device *dev, enum sensor_channel chan, enum se
 		}
 
 		/* Writing ODR */
-		if (i2c_reg_write_byte(drv_data->i2c, DT_INST_REG_ADDR(0), LIS3MDL_REG_CTRL1,
-							   lis3mdl_odr_bits[val->val1]) < 0)
+		ret = i2c_reg_write_byte(drv_data->i2c, DT_INST_REG_ADDR(0), LIS3MDL_REG_CTRL1,
+								 lis3mdl_odr_bits[val->val1]);
+		if (ret < 0)
 		{
-			LOG_ERR("Failed to set odr");
+			LOG_ERR("Failed to set odr. Error: %i", ret);
 			return -EIO;
 		}
 
@@ -130,9 +131,10 @@ int lis3mdl_attr_set(const struct device *dev, enum sensor_channel chan, enum se
 
 		/* Writing threshold */
 		ret = i2c_write(drv_data->i2c, buf, sizeof(buf), DT_INST_REG_ADDR(0));
-		if (ret != 0)
+		if (ret < 0)
 		{
-			return ret;
+			LOG_ERR("Unable to set trigger threshold. Err: %i", ret);
+			return -EIO;
 		}
 
 		break;
